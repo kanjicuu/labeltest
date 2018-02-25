@@ -1,0 +1,46 @@
+<div id="waveform"></div>
+
+<p align="center">
+  <button class="btn btn-primary" onclick="wavesurfer.playPause()">
+    <i class="glyphicon glyphicon-play"></i>
+    Play
+  </button>
+</p>
+
+<script>
+  var wavesurfer = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: 'violet'
+  });
+
+  wavesurfer.load('https://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3');
+
+   wavesurfer.on('region-dblclick', function(){
+     wavesurfer.remove({});          
+        });
+
+  wavesurfer.on('ready', function () {
+    // Enable creating regions by dragging
+    wavesurfer.enableDragSelection({});
+
+    // Add a couple of pre-defined regions
+    wavesurfer.addRegion({
+      start: 2, // time in seconds
+      end: 5, // time in seconds
+      color: 'hsla(100, 100%, 30%, 0.1)'
+    });
+    
+    wavesurfer.addRegion({
+      start: 8,
+      end: 14,
+      color: 'hsla(200, 100%, 30%, 0.1)'
+    });
+    
+    wavesurfer.addRegion({
+      start: 28,
+      end: 36,
+      color: 'hsla(400, 100%, 30%, 0.1)'
+    });
+  });
+
+</script>
