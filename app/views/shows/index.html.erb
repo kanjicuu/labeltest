@@ -76,14 +76,36 @@
     <form role="form" name="edit" style="opacity: 0; transition: opacity 100ms linear; margin: 30px 0;">
         <!-- opacity: 0;で透明化　 -->
         <div class="form-group">
-            <label for="start">Start</label>
+            <label for="start">開始時間</label>
             <input class="form-control" id="start" name="start" />
         </div>
 
         <div class="form-group">
-            <label for="end">End</label>
+            <label for="end">終了時間</label>
             <input class="form-control" id="end" name="end" />
         </div>
+
+        <div class="form-group">
+            <label for="advice">ラベル</label>
+            <div class= 'row '>
+                <div class="radio col-sm-2">
+                    <input type="radio" name="advice" id="advice" value="0"  />
+                        <label for="advice">その他</label>
+                </div>
+                <div class="radio col-sm-2">
+                    <input type="radio" name="advice" id="advice" value="1"  />
+                        <label for="advice">音程が高い</label>
+                </div>
+                <div class="radio col-sm-2">
+                    <input type="radio" name="advice" id="advice" value="2" />
+                    <label for="advice">音程が低い</label>
+                </div>
+                <div class="radio col-sm-2">
+                    <input type="radio" name="advice" id="advice" value="3" />
+                    <label for="advice">テンポが早い</label>
+                </div>
+            </div>
+        </div>        
 
         <div class="form-group">
             <label for="note">Note</label>
@@ -257,11 +279,13 @@
                     url: '/annotations.json'
                 })
                 .on('success', function(data) {
+                    console.log("before load localStorage.regions", localStorage.regions);
                     loadRegions(data);
                     saveRegions();
                     //console.log(data);
                     global = data;
-                    //console.log(global);
+
+                    console.log("after load localStorage.regions", localStorage.regions);
                 });
         // }
     });
@@ -276,20 +300,46 @@
     function editAnnotation(region) {
 
         console.log('edit annotation');
-        console.log(region);
+        // console.log(region);
         //console.log(document.forms.edit.elements);
-
-        console.log(global);
 
         var form = document.forms.edit;
         form.style.opacity = 1;//透明にしない？
+
+        console.log('advice value', form.elements.advice.value);
+        console.log('region.data.advice', region.data.advice);
+
+
+        //ここでadvice.valueの値を取得し、ラジオボタンに反映。
+        if(region.data.advice==null){
+            $('[name=advice][value=0]').prop('checked',false);
+            $('[name=advice][value=1]').prop('checked',false);
+            $('[name=advice][value=2]').prop('checked',false);
+            $('[name=advice][value=3]').prop('checked',false);
+        }
+        if(region.data.advice==0){
+            $('[name=advice][value=0]').prop('checked',true);
+        }
+        if(region.data.advice=="1"){
+            $('[name=advice][value=1]').prop('checked',true);
+        }
+        if(region.data.advice=="2"){
+            $('[name=advice][value=2]').prop('checked',true);
+        }
+        if(region.data.advice=="3"){
+            $('[name=advice][value=3]').prop('checked',true);
+        }
+
 
         //0.1秒単位で丸め込んでる？
         // ここはhtmlの各要素の表示されるためか。
         (form.elements.start.value = Math.round(region.start * 100) / 100 ),
         (form.elements.end.value = Math.round(region.end * 100) / 100);
-        //form.elements.label.value = region.label || '';    
+        //トオヤマカンジform.elements.advice.value = region.advice;    
         form.elements.note.value = region.data.note || '';
+
+        console.log('save form element',form.elements);
+        console.log(form.elements.advice.value);
 
         form.onsubmit = function(e) {
             e.preventDefault();
@@ -298,8 +348,8 @@
             region.update({
                 start: form.elements.start.value,
                 end: form.elements.end.value,
-                //label: form.elements.label.value,
                 data: {
+                    advice: form.elements.advice.value,
                     note: form.elements.note.value
                 }
             });
@@ -318,17 +368,18 @@
 
      //ここに label: region.labelを追加
     function saveRegions() {
-        console.log('save regions');
-        console.log(localStorage.regions);
+        console.log('save regions',localStorage.regions);
 
         localStorage.regions = JSON.stringify(
             Object.keys(wavesurfer.regions.list).map(function(id) {
                 var region = wavesurfer.regions.list[id];
+
+                console.log("save", region.data.advice);
                 return {
                     start: region.start,
                     end: region.end,
-                    // label: region.label,
-                    attributes: region.attributes,
+                    //advice: region.advice,
+                    //attributes: region.attributes,
                     data: region.data
                 };
             })
@@ -365,6 +416,7 @@
     }
 
     function loadRegions(regions) {
+        console.log('loadregions',regions);//ここではadvice読み込まれてる。
         regions.forEach(function(region) {
             region.color = randomColor(0.1);
             wavesurfer.addRegion(region);
@@ -387,7 +439,17 @@
         });
 
 
-
+    /**
+     * Bind controls.
+     */
+    window.GLOBAL_ACTIONS['delete-region'] = function() {
+        var form = document.forms.edit;
+        var regionId = form.dataset.region;
+        if (regionId) {
+            wavesurfer.regions.list[regionId].remove();
+            form.reset();
+        }
+    };
 
         
       

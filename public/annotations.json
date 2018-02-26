@@ -1,12 +1,13 @@
 [
     {
-        "start": 1.1,
+        "start": 1.5,
         "end": 1.8,
-        "data": {},
-        "attributes": { "label": "abc", "highlight": true }
+        "data": {
+            "advice": "2",
+            "note": "ある日の暮方の事である。"}
     },
     
-    { "start": 2.7, "end": 4.1, "lebel": 3, "data": {} },
+    { "start": 2.7, "end": 4.1, "data": {} },
     { "start": 6, "end": 8.2, "data": {} },
     { "start": 8.6, "end": 12.2, "data": {} },
     { "start": 12.8, "end": 16.2, "data": {} },
